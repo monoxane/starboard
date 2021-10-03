@@ -16,10 +16,10 @@ let settings = {
   channelID: process.env.CHANNEL || undefined,
   reactionEmoji: process.env.EMOJI || "⭐",
   embedEmoji: process.env.EMOJI || "⭐",
-  threshold: process.env.THRESHOLD || 15,
+  threshold: Number(process.env.THRESHOLD) || 15,
   hexcolor: process.env.COLOR || "00AE86",
-  dateCutoff: process.env.CUTOFF || 3,
-  fetchLimit: process.env.LIMIT || 100,
+  dateCutoff: Number(process.env.CUTOFF) || 3,
+  fetchLimit: Number(process.env.LIMIT) || 100,
 }
 
 let db
@@ -33,15 +33,15 @@ function setup () {
   console.log(`Channel ID: ${settings.channelID}`)
   console.log(`Reaction Emoji: ${settings.reactionEmoji}`)
   console.log(`Embed Emoji: ${settings.embedEmoji}`)
-  console.log(`Threshold: ${settings.threshhold}`)
+  console.log(`Threshold: ${settings.threshold}`)
   console.log(`Colour: ${settings.hexcolor}`)
   console.log(`Date Cutoff: ${settings.dateCutoff}`)
   console.log(`Fetch Limit: ${settings.fetchLimit}`)
 
   // login to discord
-  if (process.env.STAR_TOKEN) {
-    console.log('Loggin In')
-    client.login(process.env.STAR_TOKEN)
+  if (process.env.TOKEN) {
+    console.log('Logging In')
+    client.login(process.env.TOKEN)
   } else {
     console.log('No Token Provided')
   }
