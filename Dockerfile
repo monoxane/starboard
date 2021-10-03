@@ -1,8 +1,8 @@
-FROM node:16-alpine
+FROM node:16.6.0-alpine
 
 WORKDIR /app
 ADD . /app
 
-RUN npm install
-ENTRYPOINT npm start
+RUN yarn
+ENTRYPOINT yarn run start
 

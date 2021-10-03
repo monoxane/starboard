@@ -11,7 +11,17 @@ const client = new Discord.Client({
   intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS']
 })
 
-let settings
+let settings = {
+  serverID: process.env.SERVER || undefined,
+  channelID: process.env.CHANNEL || undefined,
+  reactionEmoji: process.env.EMOJI || "⭐",
+  embedEmoji: process.env.EMOJI || "⭐",
+  threshold: process.env.THRESHOLD || 15,
+  hexcolor: process.env.COLOR || "00AE86",
+  dateCutoff: process.env.CUTOFF || 3,
+  fetchLimit: process.env.LIMIT || 100,
+}
+
 let db
 let guildID = ''
 let smugboardID = ''
@@ -19,26 +29,21 @@ let messagePosted = {}
 let loading = true
 
 function setup () {
-  // load settings.json
-  try {
-    settings = require('../config/settings.json')
-  } catch (e) {
-    console.log(`a settings.json file has not been generated. ${e.stack}`)
-    process.exit()
-  }
-
-  if (settings.sql)
-    db = require('./database/sequelize')
-
-  if (!settings.embedEmoji)
-    settings.embedEmoji = '⭐'
+  console.log(`Server ID: ${settings.serverID}`)
+  console.log(`Channel ID: ${settings.channelID}`)
+  console.log(`Reaction Emoji: ${settings.reactionEmoji}`)
+  console.log(`Embed Emoji: ${settings.embedEmoji}`)
+  console.log(`Threshold: ${settings.threshhold}`)
+  console.log(`Colour: ${settings.hexcolor}`)
+  console.log(`Date Cutoff: ${settings.dateCutoff}`)
+  console.log(`Fetch Limit: ${settings.fetchLimit}`)
 
   // login to discord
-  if (settings.token) {
-    console.log('Logging in with token...')
-    client.login(settings.token)
+  if (process.env.STAR_TOKEN) {
+    console.log('Loggin In')
+    client.login(process.env.STAR_TOKEN)
   } else {
-    console.log('Error logging in: There may be an issue with you settings.json file')
+    console.log('No Token Provided')
   }
 }
 
@@ -123,11 +128,6 @@ function manageBoard (reaction_orig) {
         postChannel.messages.fetch(editableMessageID).then(message => {
           message.embeds[0].setFooter(messageFooter)
           message.edit({ embeds: [message.embeds[0]] })
-
-          // if db
-          if (db)
-            db.updatePost(message, msg, reaction.count, message.embeds[0].image)
-
         }).catch(err => {
           console.error(`error updating post: ${editableMessageID}\noriginal message: ${msg.id}\n${err}`)
         })
@@ -177,10 +177,6 @@ function manageBoard (reaction_orig) {
           .setFooter(data.footer)
         postChannel.send({ embeds: [embed] }).then(starMessage => {
           messagePosted[msg.id] = starMessage.id
-
-          // if db
-          if (db)
-            db.updatePost(starMessage, msg, reaction.count, starMessage.embeds[0].image)
         })
       }
     }
@@ -198,9 +194,6 @@ function deletePost (msg) {
       message.delete()
         .then(msg => console.log(`Removed message with ID ${editableMessageID}. Reaction count reached 0.`))
         .catch(console.error)
-      
-      if (db)
-        db.setDeleted(message.id)
     })
   }
 }
